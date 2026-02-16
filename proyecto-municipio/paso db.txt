@@ -1,0 +1,104 @@
+CREATE DATABASE IF NOT EXISTS municipios;
+CREATE USER 'admin'@'localhost' IDENTIFIED BY 'admin123';
+GRANT ALL PRIVILEGES ON municipios.* TO 'admin'@'localhost';
+FLUSH PRIVILEGES;
+EXIT;
+
+
+
+
+
+
+service mariadb start
+
+
+mysql -u admin -padmin123 municipios
+
+
+
+
+
+
+
+
+
+//si se presentan cambios en el contenedor 
+cd C:\proyecto-municipio
+docker rm -f municipio
+docker rmi municipio-img
+
+
+
+script datos 
+
+
+
+
+-- Primero ajusta tu tabla para que coincida con la estructura DANE
+DROP TABLE IF EXISTS municipios;
+
+CREATE TABLE municipios (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    codigo_dane VARCHAR(10),
+    nombre VARCHAR(100),
+    departamento VARCHAR(100),
+    poblacion INT DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Cargar los 50 municipios más poblados (ejemplo funcional)
+INSERT INTO municipios (codigo_dane, nombre, departamento, poblacion) VALUES
+('11001', 'Bogotá D.C.', 'Bogotá D.C.', 7181469),
+('05001', 'Medellín', 'Antioquia', 2508452),
+('76001', 'Cali', 'Valle del Cauca', 2252616),
+('08001', 'Barranquilla', 'Atlántico', 1232766),
+('13001', 'Cartagena', 'Bolívar', 1028736),
+('25754', 'Soacha', 'Cundinamarca', 731020),
+('54001', 'Cúcuta', 'Norte de Santander', 711715),
+('68001', 'Bucaramanga', 'Santander', 613400),
+('66001', 'Pereira', 'Risaralda', 488839),
+('73001', 'Ibagué', 'Tolima', 578728),
+('17001', 'Manizales', 'Caldas', 434403),
+('50001', 'Villavicencio', 'Meta', 531275),
+('20001', 'Valledupar', 'Cesar', 493694),
+('41001', 'Neiva', 'Huila', 357392),
+('63001', 'Armenia', 'Quindío', 315328),
+('70001', 'Sincelejo', 'Sucre', 280940),
+('47001', 'Santa Marta', 'Magdalena', 499192),
+('05088', 'Bello', 'Antioquia', 493164),
+('76520', 'Palmira', 'Valle del Cauca', 303036),
+('76892', 'Yumbo', 'Valle del Cauca', 134558),
+('05360', 'Itagüí', 'Antioquia', 281853),
+('19001', 'Popayán', 'Cauca', 318059),
+('23001', 'Montería', 'Córdoba', 504482),
+('52001', 'Pasto', 'Nariño', 450000),
+('73268', 'Espinal', 'Tolima', 78722),
+('05631', 'Rionegro', 'Antioquia', 126913),
+('85001', 'Yopal', 'Casanare', 155229),
+('27001', 'Quibdó', 'Chocó', 116545),
+('81001', 'Arauca', 'Arauca', 95196),
+('86001', 'Mocoa', 'Putumayo', 44906),
+('15001', 'Tunja', 'Boyacá', 203401),
+('18001', 'Florencia', 'Caquetá', 174854),
+('44001', 'Riohacha', 'La Guajira', 278337),
+('88001', 'San Andrés', 'San Andrés y Providencia', 85000),
+('91001', 'Leticia', 'Amazonas', 50712),
+('94001', 'Inírida', 'Guainía', 20752),
+('95001', 'San José del Guaviare', 'Guaviare', 58305),
+('97001', 'Mitú', 'Vaupés', 18505),
+('99001', 'Puerto Carreño', 'Vichada', 18279),
+('25899', 'Zipaquirá', 'Cundinamarca', 134494),
+('25426', 'Mosquera', 'Cundinamarca', 94192),
+('25290', 'Funza', 'Cundinamarca', 90113),
+('25430', 'Madrid', 'Cundinamarca', 91891),
+('25175', 'Chía', 'Cundinamarca', 140000),
+('25898', 'Facatativá', 'Cundinamarca', 141835),
+('05266', 'Envigado', 'Antioquia', 238501),
+('76364', 'Jamundí', 'Valle del Cauca', 134143),
+('76111', 'Buenaventura', 'Valle del Cauca', 422589),
+('76834', 'Tuluá', 'Valle del Cauca', 217637),
+('76109', 'Buga', 'Valle del Cauca', 121616);
+
+-- Verificar datos cargados
+SELECT COUNT(*) AS total_municipios FROM municipios;
+SELECT departamento, COUNT(*) AS cantidad FROM municipios GROUP BY departamento ORDER BY cantidad DESC;
+SELECT * FROM municipios LIMIT 10;
