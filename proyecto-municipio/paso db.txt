@@ -5,73 +5,47 @@
 service mariad start
 
 
-mysql -u admin -padmin123 municipios
 
 
 
+mysql -uroot municipios
 
 
-🎶🎶🎶🎶 Verificar datos cargados
-SELECT COUNT(*) AS total_municipios FROM municipios; 
-importante correrlo en la primera vez para mirar si los datos se cargaron 
 
+docker exec -it municipio mysql -uroot municipios
+
+
+
+-- Ver tablas
+SHOW TABLES;
+
+-- Verificar datos
+SELECT COUNT(*) FROM departamentos;
+SELECT COUNT(*) FROM municipios;
+
+-- Ver departamentos
+SELECT * FROM departamentos;
+
+-- Ver municipios
 SELECT * FROM municipios LIMIT 10;
 
 
 
--- Total de municipios cargados
-SELECT COUNT(*) AS total_municipios FROM municipios;
+--TOCA POR OBLIGACION LEVANTAR EL USUARIO PRIVADO PARA CONECTAR LA DB
 
--- Primeros 10 municipios
-SELECT * FROM municipios LIMIT 10;
+sqltools
 
--- Todos los departamentos únicos
-SELECT DISTINCT nombre_departamento FROM municipios ORDER BY nombre_departamento;
-
--- Contar municipios por departamento
-SELECT nombre_departamento, COUNT(*) AS cantidad 
-FROM municipios 
-GROUP BY nombre_departamento 
-ORDER BY cantidad DESC;
+docker exec -it municipio bash
+mysql -uroot 
+CREATE USER IF NOT EXISTS 'admin'@'%' IDENTIFIED BY 'admin123';
+GRANT ALL PRIVILEGES ON municipios.* TO 'admin'@'%';
+FLUSH PRIVILEGES;
+EXIT;
 
 
+parametro 
 
-
--- Municipios de Antioquia
-SELECT * FROM municipios WHERE nombre_departamento = 'ANTIOQUIA';
-
--- Municipios de Cundinamarca
-SELECT * FROM municipios WHERE nombre_departamento = 'CUNDINAMARCA';
-
--- Municipios de Bogotá
-SELECT * FROM municipios WHERE nombre_departamento LIKE '%BOGOT%';
-
--- Top 5 departamentos con más municipios
-SELECT nombre_departamento, COUNT(*) AS total 
-FROM municipios 
-GROUP BY nombre_departamento 
-ORDER BY total DESC 
-LIMIT 5;
-
-
-
-
-
-
--- Buscar municipio por nombre
-SELECT * FROM municipios WHERE nombre_municipio = 'MEDELLÍN';
-
--- Buscar municipios que contengan texto
-SELECT * FROM municipios WHERE nombre_municipio LIKE '%SAN%';
-
--- Municipios de Pasto y alrededores
-SELECT * FROM municipios WHERE nombre_municipio LIKE '%PASTO%';
-
--- Municipio por código DANE
-SELECT * FROM municipios WHERE id_municipio = '5001';
-
--- Departamento por código
-SELECT * FROM municipios WHERE id_departamento = '5' LIMIT 10;
+Save as plaintext in settings
 
 
 
@@ -79,68 +53,6 @@ SELECT * FROM municipios WHERE id_departamento = '5' LIMIT 10;
 
 
 
--- Municipios con coordenadas
-SELECT nombre_municipio, nombre_departamento, longitud, latitud 
-FROM municipios 
-LIMIT 20;
-
--- Municipios de la costa (Atlántico)
-SELECT * FROM municipios WHERE nombre_departamento = 'ATLÁNTICO';
-
--- Municipios zona cafetera
-SELECT * FROM municipios 
-WHERE nombre_departamento IN ('CALDAS', 'RISARALDA', 'QUINDÍO');
 
 
 
-
-
-
--- Municipios ordenados alfabéticamente
-SELECT nombre_municipio, nombre_departamento 
-FROM municipios 
-ORDER BY nombre_municipio;
-
--- Buscar múltiples municipios
-SELECT * FROM municipios 
-WHERE nombre_municipio IN ('MEDELLÍN', 'CALI', 'BARRANQUILLA', 'CARTAGENA DE INDIAS');
-
--- Municipios que empiezan con letra específica
-SELECT * FROM municipios WHERE nombre_municipio LIKE 'B%';
-
--- Departamentos del eje cafetero con conteo
-SELECT nombre_departamento, COUNT(*) AS municipios 
-FROM municipios 
-WHERE nombre_departamento IN ('CALDAS', 'RISARALDA', 'QUINDÍO')
-GROUP BY nombre_departamento;
-
--- Todos los municipios llamados "San"
-SELECT nombre_municipio, nombre_departamento 
-FROM municipios 
-WHERE nombre_municipio LIKE 'SAN %' 
-ORDER BY nombre_municipio;
-
-
-
-
-
-
--- Departamento con más municipios
-SELECT nombre_departamento, COUNT(*) AS total 
-FROM municipios 
-GROUP BY nombre_departamento 
-ORDER BY total DESC 
-LIMIT 1;
-
--- Departamento con menos municipios
-SELECT nombre_departamento, COUNT(*) AS total 
-FROM municipios 
-GROUP BY nombre_departamento 
-ORDER BY total ASC 
-LIMIT 1;
-
--- Total de departamentos
-SELECT COUNT(DISTINCT nombre_departamento) AS total_departamentos FROM municipios;
-
--- Listar todos los tipos
-SELECT DISTINCT tipo FROM municipios;
