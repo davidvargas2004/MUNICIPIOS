@@ -146,6 +146,50 @@ JOIN almacen a ON s.almacen = a.nombreAlmacen
 JOIN estadoCiclo e ON s.estado_ciclo = e.tipoEstado
 JOIN producto pr ON s.producto = pr.nombreProducto;
 
+-- create disparador
+
+DROP TRIGGER IF EXISTS antes_de_actualizar_costo;
+
+
+DELIMITER //
+
+
+CREATE TRIGGER antes_de_actualizar_costo
+BEFORE UPDATE ON movimientos
+FOR EACH ROW
+BEGIN
+    
+    IF NEW.costoAlmacenamiento < 0 THEN
+        SIGNAL SQLSTATE '45000' 
+        SET MESSAGE_TEXT = 'Error: No se permiten costos negativos';
+    END IF;
+    
+END //
+
+DELIMITER ;
+
+
+-- crear sp
+DELIMITER //
+
+
+CREATE PROCEDURE actualizar_costo(
+    IN p_id INT, 
+    IN p_nuevo_costo DECIMAL(12,3)
+)
+BEGIN
+    
+    UPDATE movimientos 
+    SET costoAlmacenamiento = p_nuevo_costo 
+    WHERE id = p_id;
+    
+  
+    SELECT CONCAT('Movimiento ', p_id, ' actualizado a ', p_nuevo_costo) AS Resultado;
+END //
+
+
+DELIMITER ;
+
 
 EOF
 
