@@ -22,7 +22,7 @@ IF ERRORLEVEL 1 (
 
 echo.
 echo [3/5] Levantando contenedor en puerto 3307...
-docker run -d --name municipio -p 3307:3306 municipio-img
+docker run -d --name municipio -p 3307:3306 municipio-img 
 
 IF ERRORLEVEL 1 (
     echo.
@@ -58,3 +58,10 @@ echo Verificar datos:
 echo   SELECT COUNT(*) FROM municipios;
 echo ==========================================
 pause
+
+
+
+echo todo queod listo
+echo  ejecutar visual
+echo code
+echo develop code

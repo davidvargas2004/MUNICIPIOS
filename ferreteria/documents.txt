@@ -1,0 +1,106 @@
+mysql -uroot -pRoot123! ferreteria_dw
+
+
+Host: localhost
+
+Port: 3307
+
+User: root
+
+Password: Root123!
+
+Database: ferreteria_dw
+
+
+1. Vistas (Vistas) ✅
+Están creadas para simplificar consultas complejas.
+Para mostrarlo:
+
+sql
+-- Muestra la vista principal que une todas las dimensiones con los hechos
+
+SELECT * FROM vista_movimientos LIMIT 10;
+
+-- O muestra el código que generó la vista:
+
+SHOW CREATE VIEW vista_movimientos;
+
+2. Índices (Índices) ✅
+Creamos índices para optimizar las búsquedas por fechas y productos.
+Para mostrarlo:
+
+sql
+-- Muestra los índices creados en la tabla de hechos
+
+SHOW INDEX FROM fact_movimiento;
+
+-- O en los productos
+SHOW INDEX FROM dim_producto;
+
+
+3. Particionamiento (Particionamiento) ⚠️ (Aclaración importante)
+Ojo aquí: En el paso anterior tuvimos que quitar el particionamiento físico (ERROR 1506) porque MySQL 8.0 no permite mezclar particiones y llaves foráneas (Foreign Keys) en tablas InnoDB de esta manera.
+Si tu profesor te pregunta por qué no hay particionamiento físico, dile: "Privilegié la integridad relacional (Claves Foráneas) sobre el particionamiento físico, ya que MySQL InnoDB lanza el Error 1506 al mezclar ambas, y el volumen de datos actual no justifica perder la integridad referencial".
+
+4. Funciones (Funciones) ✅
+Se crearon funciones personalizadas para cálculos.
+Para mostrarlo:
+
+sql
+-- Usa la función de cálculo de costo total y la de meses para vencer
+
+SELECT producto, cantidad, costo_almacenamiento, 
+       fn_costo_total(cantidad, costo_almacenamiento) AS total_calculado,
+       fn_meses_para_vencer(fecha_vencimiento) AS meses_restantes
+FROM vista_movimientos 
+WHERE fecha_vencimiento IS NOT NULL
+LIMIT 5;
+
+
+5. Procedimientos Almacenados (Procedimientos Almacenados) ✅
+Programas guardados en la BD que ejecutan lógica completa.
+Para mostrarlo:
+
+sql
+-- Llama al procedimiento que resume movimientos por fecha
+
+
+CALL sp_resumen_categoria('2024-01-01', '2025-12-31');
+
+-- Llama al procedimiento que revisa el stock que caduca en los próximos 90 días
+
+CALL sp_vencidos_proximos();
+
+
+6. Disparadores (Triggers) ✅
+Lógica automática que se dispara al insertar o actualizar.
+Para mostrarlo:
+
+sql
+-- Muestra los triggers creados en la base de datos
+
+SHOW TRIGGERS LIKE 'fact_movimiento';
+
+-- (El trigger valida que una fecha de vencimiento no sea menor a la fecha actual, y recalcula costos al actualizar).
+
+7. Eventos (Eventos) ✅
+Tareas programadas que corren solas en el tiempo.
+Para mostrarlo:
+
+sql
+-- Muestra los eventos programados (limpieza de staging y resúmenes)
+
+SHOW EVENTS;
+
+-- Y puedes mostrar la tabla donde el evento guarda su resumen mensual:
+
+SELECT * FROM resumen_mensual;
+
+8. Cubos de Información (Cubos de Información / OLAP) ✅
+Un "Cubo" a nivel de base de datos relacional (sin usar PowerBI u otras herramientas) se representa mediante vistas de agregación multidimensional.
+Para mostrarlo:
+
+sql
+-- Esta vista funciona como un "Cubo" base agrupando por Categoría y sumarizando las métricas clave:
+
+SELECT * FROM vw_resumen_categorias;
