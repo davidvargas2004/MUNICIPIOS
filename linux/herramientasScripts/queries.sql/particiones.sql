@@ -48,7 +48,7 @@ INSERT INTO catalogo_distribuido VALUES (1, 'Taladro Percutor', 2);
 
 INSERT INTO catalogo_distribuido VALUES (2, 'Pintura Acrílica', 9);
 
--- Va a p_varios (Cat 6)
+
 INSERT INTO catalogo_distribuido VALUES (3, 'Caja de Tornillos', 6);
 
 

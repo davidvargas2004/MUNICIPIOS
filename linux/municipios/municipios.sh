@@ -1,30 +1,31 @@
 #!/bin/bash
 
-# --- 1. SETTINGS 
+# --- SETTINGS 
 CONTAINER_NAME="colombiadb"
 DB_NAME="colombia_db"
 ROOT_PASS="root"
 HOST_PORT="5050"
 LOCAL_CSV="$HOME/Downloads/municipios.csv"
+VOLUME="$HOME/Documents/coding/dockerUploads"
 
-# --- 2. RESET ---
+# --- RESET ---
 docker rm -f $CONTAINER_NAME 2>/dev/null
 
-# --- 3. START ---
+# --- START ---
 
 docker run -d \
   --name $CONTAINER_NAME \
   -p $HOST_PORT:3306 \
   -e MARIADB_ROOT_PASSWORD=$ROOT_PASS \
+  -v $VOLUME:/uploads \
   mariadb:latest --local-infile=1
 
 echo "Waiting for MariaDB to wake up..."
 sleep 15
 
-# --- 4. COPY ---
-docker cp "$LOCAL_CSV" $CONTAINER_NAME:/tmp/municipios.csv
 
-# --- 5. SQL ---
+
+# --- SQL ---
 docker exec -i $CONTAINER_NAME mariadb -u root -p$ROOT_PASS <<EOF
 CREATE DATABASE IF NOT EXISTS $DB_NAME;
 USE $DB_NAME;
@@ -61,7 +62,7 @@ CREATE TEMPORARY TABLE staging (
 );
 
 SET GLOBAL local_infile = 1;
-LOAD DATA LOCAL INFILE '/tmp/municipios.csv' 
+LOAD DATA LOCAL INFILE '/uploads/municipios.csv' 
 INTO TABLE staging 
 FIELDS TERMINATED BY ',' 
 OPTIONALLY ENCLOSED BY '"' 

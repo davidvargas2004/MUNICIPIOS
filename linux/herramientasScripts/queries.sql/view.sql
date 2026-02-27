@@ -26,3 +26,6 @@ c.tipoCategoria
 from  producto p
 INNER JOIN categoria c
 ON p.categoria_id = c.id;
+
+
+
