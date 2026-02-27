@@ -219,7 +219,7 @@ ON p.categoria_id = c.id;
 
 
 CREATE TABLE movimientos_historico (
-    id INT,
+    id INT AUTO_INCREMENT,
     fecha DATETIME,
     cantidad DECIMAL(12,3),
     PRIMARY KEY (id, fecha)
@@ -231,19 +231,18 @@ PARTITION BY RANGE (YEAR(fecha)) (
 );
 
 
-INSERT INTO movimientos_historico (id, fecha, cantidad) 
-VALUES (1, '2024-05-15 10:00:00', 50.5);
+INSERT INTO movimientos_historico (fecha, cantidad) VALUES ('2024-05-15 10:00:00', 50.5);
+INSERT INTO movimientos_historico (fecha, cantidad) VALUES ('2026-02-22 14:30:00', 100.0);
+INSERT INTO movimientos_historico (fecha, cantidad) VALUES ('2028-12-01 09:00:00', 25.75);
+INSERT INTO movimientos_historico (fecha, cantidad) VALUES ('2025-12-20 08:30:00', 12.50);
+INSERT INTO movimientos_historico (fecha, cantidad) VALUES ('2026-06-15 11:00:00', 85.00);
+INSERT INTO movimientos_historico (fecha, cantidad) VALUES ('2026-11-02 16:45:00', 44.20);
+INSERT INTO movimientos_historico (fecha, cantidad) VALUES ('2027-01-10 09:00:00', 150.00);
+INSERT INTO movimientos_historico (fecha, cantidad) VALUES ('2028-05-20 10:20:00', 30.00);
 
-
-INSERT INTO movimientos_historico (id, fecha, cantidad) 
-VALUES (2, '2026-02-22 14:30:00', 100.0);
-
-
-INSERT INTO movimientos_historico (id, fecha, cantidad) 
-VALUES (3, '2028-12-01 09:00:00', 25.75);
 
 CREATE TABLE catalogo_distribuido (
-    id INT NOT NULL,
+    id INT NOT NULL AUTO_INCREMENT,
     nombre VARCHAR(100),
     categoria_id INT NOT NULL,
     PRIMARY KEY (id, categoria_id)
@@ -256,14 +255,62 @@ PARTITION BY LIST (categoria_id) (
 );
 
 
-INSERT INTO catalogo_distribuido VALUES (1, 'Taladro Percutor', 2);
+INSERT INTO catalogo_distribuido (nombre, categoria_id) VALUES ('Taladro Percutor', 2);
+INSERT INTO catalogo_distribuido (nombre, categoria_id) VALUES ('Pintura Acrílica', 9);
+INSERT INTO catalogo_distribuido (nombre, categoria_id) VALUES ('Caja de Tornillos', 6);
+INSERT INTO catalogo_distribuido (nombre, categoria_id) VALUES ('Martillo de Carpintero', 1);
+INSERT INTO catalogo_distribuido (nombre, categoria_id) VALUES ('Bolsa de Cemento', 3);
+INSERT INTO catalogo_distribuido (nombre, categoria_id) VALUES ('Guantes de Protección', 7);
+INSERT INTO catalogo_distribuido (nombre, categoria_id) VALUES ('Taladro Inalámbrico', 2);
+INSERT INTO catalogo_distribuido (nombre, categoria_id) VALUES ('Tubo PVC 1/2 pulgada', 4);
 
 
-INSERT INTO catalogo_distribuido VALUES (2, 'Pintura Acrílica', 9);
+
+CREATE OR REPLACE VIEW cubo_inventario AS
+SELECT 
+    IFNULL(pr.nombreProvincia, 'TOTAL GENERAL') AS Provincia,
+    IFNULL(c.tipoCategoria, 'Total Provincia') AS Categoria,
+    SUM(m.cantidad) AS Stock_Total,
+    SUM(m.cantidad * m.costoAlmacenamiento) AS Valor_Total_Almacenado
+FROM movimientos m
+JOIN almacen a ON m.almacen_id = a.id
+JOIN provincia pr ON a.provincia_id = pr.id
+JOIN producto p ON m.producto_id = p.id
+JOIN categoria c ON p.categoria_id = c.id
+GROUP BY pr.nombreProvincia, c.tipoCategoria WITH ROLLUP;
 
 
-INSERT INTO catalogo_distribuido VALUES (3, 'Caja de Tornillos', 6);
+SET GLOBAL event_scheduler = ON;
 
+CREATE TABLE producto_historial LIKE producto;
+
+TRUNCATE table producto_historial;
+
+
+DELIMITER //
+
+CREATE EVENT respaldo_productos_automatico
+ON SCHEDULE EVERY 50 SECOND
+DO
+BEGIN
+    INSERT IGNORE INTO producto_historial 
+    SELECT * FROM producto;
+END //
+
+DELIMITER ;
+
+
+DELIMITER //
+CREATE FUNCTION calcular_descuento(p_precio DECIMAL(12,2), p_porcentaje INT) 
+RETURNS DECIMAL(12,2)
+DETERMINISTIC
+BEGIN
+    DECLARE v_resultado DECIMAL(12,2);
+    
+    SET v_resultado = p_precio * (1 - (p_porcentaje / 100));
+    RETURN v_resultado;
+END //
+DELIMITER ;
 
 
 EOF
