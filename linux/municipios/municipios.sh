@@ -90,4 +90,6 @@ DROP TABLE staging;
 
 EOF
 
+
 echo "Process finished go look to vsCode mate."
+code .
